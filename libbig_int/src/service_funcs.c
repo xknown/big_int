@@ -252,7 +252,7 @@ void big_int_clear_zeros(big_int *a)
         3 - length of the string must be greater than 0
         other - internal error
 */
-int big_int_from_str(const big_int_str *s, unsigned int base, big_int *answer)
+int big_int_from_str(const big_int_str *s, long int base, big_int *answer)
 {
     size_t str_length, len;
     big_int_word *a, *a_end, *aa;
@@ -380,7 +380,7 @@ int big_int_from_str(const big_int_str *s, unsigned int base, big_int *answer)
         1 - wrong [base]. It can be from 2 to 36 inclusive
         other - internal error
 */
-int big_int_to_str(const big_int *a, unsigned int base, big_int_str *s)
+int big_int_to_str(const big_int *a, long int base, big_int_str *s)
 {
     size_t len;
     char *str, *str_end, *ss;
@@ -493,7 +493,7 @@ int big_int_to_str(const big_int *a, unsigned int base, big_int_str *s)
         other - internal error
 */
 int big_int_base_convert(const big_int_str *src, big_int_str *dst,
-                         unsigned int base_from, unsigned int base_to)
+                         long int base_from, long int base_to)
 {
     big_int *tmp = NULL;
     int result = 0;

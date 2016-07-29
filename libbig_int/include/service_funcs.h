@@ -43,16 +43,16 @@ BIG_INT_API int big_int_copy(const big_int *src, big_int *dst);
 
 BIG_INT_API int big_int_realloc(big_int *a, size_t len);
 
-BIG_INT_API int big_int_from_str(const big_int_str *s, unsigned int base, big_int *answer);
+BIG_INT_API int big_int_from_str(const big_int_str *s, long int base, big_int *answer);
 
-BIG_INT_API int big_int_to_str(const big_int *a, unsigned int base, big_int_str *s);
+BIG_INT_API int big_int_to_str(const big_int *a, long int base, big_int_str *s);
 
 BIG_INT_API int big_int_from_int(int value, big_int *a);
 
 BIG_INT_API int big_int_to_int(const big_int *a, int *value);
 
 BIG_INT_API int big_int_base_convert(const big_int_str *src, big_int_str *dst,
-    unsigned int base_from, unsigned int base_to);
+    long int base_from, long int base_to);
 
 BIG_INT_API int big_int_serialize(const big_int *a, int is_sign, big_int_str *s);
 
