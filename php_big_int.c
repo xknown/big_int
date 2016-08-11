@@ -1304,7 +1304,7 @@ ZEND_FUNCTION(bi_rand)
         big_int_word tmp;
         big_int_word *num, *num_end;
         unsigned char tmp_val;
-        zval *retval1 = NULL;
+        zval retval1;
         TSRMLS_FETCH(); /* for [function_table] variable */
 
         if (Z_TYPE_P(function_name) != IS_STRING) {
@@ -1312,9 +1312,9 @@ ZEND_FUNCTION(bi_rand)
             goto error;
         }
 
-        MAKE_STD_ZVAL(retval1);
+	array_init(&retval1);
 
-        n_words = (n_bits / BIG_INT_WORD_BITS_CNT) + 1;
+	n_words = (n_bits / BIG_INT_WORD_BITS_CNT) + 1;
         n_bits %= BIG_INT_WORD_BITS_CNT;
         /* allocate memory for [answer] */
         if (big_int_realloc(answer, n_words)) {
@@ -1330,15 +1330,15 @@ ZEND_FUNCTION(bi_rand)
             tmp = 0;
             i = (int) BIG_INT_WORD_BYTES_CNT;
             while (i--) {
-                if (call_user_function(CG(function_table), NULL, function_name, retval1, 0, NULL TSRMLS_CC) != SUCCESS) {
+                if (call_user_function(CG(function_table), NULL, function_name, &retval1, 0, NULL TSRMLS_CC) != SUCCESS) {
                     errstr = "bi_rand(): user function call failed";
                     goto error;
                 }
-                if (Z_TYPE_P(retval1) != IS_LONG) {
+                if (Z_TYPE_P(&retval1) != IS_LONG) {
                     errstr = "bi_rand(): user function must return integer value";
                     goto error;
                 }
-                tmp_val = (unsigned char) Z_LVAL_P(retval1);
+                tmp_val = (unsigned char) Z_LVAL_P(&retval1);
 
                 tmp <<= 8;
                 tmp |= tmp_val;
