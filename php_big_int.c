@@ -1383,7 +1383,7 @@ ZEND_FUNCTION(bi_div_extended)
     int args_cnt;
     args_entry args[2] = {0};
     int is_zero;
-    zval q_zval = NULL, r_zval = NULL;
+    zval q_zval, r_zval;
 
     args_cnt = ZEND_NUM_ARGS();
     if (get_func_args("bi_div_extended", 2, 2, &args_cnt, args TSRMLS_CC) == FAILURE) {
@@ -2144,7 +2144,7 @@ ZEND_FUNCTION(bi_gcd_extended)
     int args_cnt;
     args_entry args[2] = {0};
     big_int *gcd = NULL, *u = NULL, *v = NULL;
-    zval gcd_zval = NULL, u_zval = NULL, v_zval = NULL;
+    zval gcd_zval, u_zval, v_zval;
 
     args_cnt = ZEND_NUM_ARGS();
     if (get_func_args("bi_bit_len", 2, 2, &args_cnt, args TSRMLS_CC) == FAILURE) {
