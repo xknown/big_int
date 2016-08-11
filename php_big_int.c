@@ -775,7 +775,7 @@ ZEND_FUNCTION(bi_to_str)
         goto error;
     }
 
-    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len, 1);
+    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len);
     /* free allocated memory */
     free_args(&arg, 1);
     big_int_str_destroy(s_ptr);
@@ -843,7 +843,7 @@ ZEND_FUNCTION(bi_base_convert)
     }
 
     /* do not free [num], because it is already registered as resource */
-    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len, 1);
+    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len);
     /* free allocated memory */
     big_int_str_destroy(s_ptr);
     return;
@@ -2057,7 +2057,7 @@ ZEND_FUNCTION(bi_serialize)
         goto error;
     }
 
-    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len, 1);
+    RETVAL_STRINGL(s_ptr->str, (int) s_ptr->len);
 
     big_int_str_destroy(s_ptr);
     free_args(&arg, 1);
@@ -2210,10 +2210,10 @@ ZEND_FUNCTION(bi_info)
 {
     array_init(return_value);
     add_assoc_long(return_value, "digit_size", BIG_INT_DIGIT_SIZE);
-    add_assoc_string(return_value, "ext_version", BI_VERSION, 1);
-    add_assoc_string(return_value, "lib_version", big_int_version(), 1);
-    add_assoc_string(return_value, "ext_build_date", BI_BUILD_DATE, 1);
-    add_assoc_string(return_value, "lib_build_date", big_int_build_date(), 1);
+    add_assoc_string(return_value, "ext_version", BI_VERSION);
+    add_assoc_string(return_value, "lib_version", big_int_version());
+    add_assoc_string(return_value, "ext_build_date", BI_BUILD_DATE);
+    add_assoc_string(return_value, "lib_build_date", big_int_build_date());
 }
 
 #endif /* if HAVE_BIG_INT */
