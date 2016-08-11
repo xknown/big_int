@@ -395,7 +395,7 @@ error:
 static void bin_op1(const char *func_name, bin_op1_func func, INTERNAL_FUNCTION_PARAMETERS)
 {
     const char *errstr = NULL;
-    long n_bit;
+    zend_long n_bit;
     big_int *answer = NULL;
     zval *tmp;
     args_entry arg = {0};
@@ -520,7 +520,7 @@ error:
 static void tri_op1(const char *func_name, tri_op1_func func, INTERNAL_FUNCTION_PARAMETERS)
 {
     const char *errstr = NULL;
-    long start_pos = 0;
+    zend_long start_pos = 0;
     big_int *answer = NULL;
     zval *tmp[2];
     args_entry args[2] = {0};
@@ -573,7 +573,7 @@ static void do_shift(const char *func_name, shift_direction dir, INTERNAL_FUNCTI
 {
     bin_op1_func func;
     const char *errstr = NULL;
-    long n_bit;
+    zend_long n_bit;
     big_int *answer = NULL;
     zval *tmp;
     args_entry arg = {0};
@@ -675,8 +675,8 @@ ZEND_MINFO_FUNCTION(bi)
 ZEND_FUNCTION(bi_from_str)
 {
     char *str = NULL;
-    int str_len;
-    long base;
+    size_t str_len;
+    zend_long base;
     big_int_str s;
     big_int *num = NULL;
     const char *errstr = NULL;
@@ -740,7 +740,7 @@ error:
 ZEND_FUNCTION(bi_to_str)
 {
     zval *tmp = NULL;
-    long base;
+    zend_long base;
     big_int_str *s_ptr = NULL;
     const char *errstr = NULL;
     args_entry arg = {0};
@@ -801,8 +801,8 @@ error:
 ZEND_FUNCTION(bi_base_convert)
 {
     char *str = NULL;
-    int str_len;
-    long base_from, base_to;
+    size_t str_len;
+    zend_long base_from, base_to;
     big_int_str s, *s_ptr = NULL;
     const char *errstr = NULL;
 
@@ -1278,7 +1278,7 @@ ZEND_FUNCTION(bi_bit1_cnt)
 ZEND_FUNCTION(bi_rand)
 {
     const char *errstr = NULL;
-    long n_bits;
+    zend_long n_bits;
     big_int *answer = NULL;
     zval *function_name = NULL;
 
@@ -1531,7 +1531,7 @@ ZEND_FUNCTION(bi_inv_bit)
 ZEND_FUNCTION(bi_test_bit)
 {
     const char *errstr = NULL;
-    long n_bit;
+    zend_long n_bit;
     zval *tmp;
     args_entry arg = {0};
     int bit_value = 0;
@@ -1574,7 +1574,7 @@ error:
 ZEND_FUNCTION(bi_scan0_bit)
 {
     const char *errstr = NULL;
-    long n_bit;
+    zend_long n_bit;
     zval *tmp;
     args_entry arg = {0};
     size_t pos = 0;
@@ -1617,7 +1617,7 @@ error:
 ZEND_FUNCTION(bi_scan1_bit)
 {
     const char *errstr = NULL;
-    long n_bit;
+    zend_long n_bit;
     zval *tmp;
     args_entry arg = {0};
     size_t pos = 0;
@@ -1702,7 +1702,7 @@ error:
 ZEND_FUNCTION(bi_subint)
 {
     const char *errstr = NULL;
-    long start_bit, len, is_invert;
+    zend_long start_bit, len, is_invert;
     big_int *answer = NULL;
     zval *tmp;
     args_entry arg = {0};
@@ -1935,7 +1935,7 @@ error:
 */
 ZEND_FUNCTION(bi_fact)
 {
-    long n;
+    zend_long n;
     const char *errstr = NULL;
     big_int *answer = NULL;
 
@@ -1982,7 +1982,7 @@ ZEND_FUNCTION(bi_pow)
     zval *tmp;
     args_entry arg = {0};
     big_int *answer = NULL;
-    long power;
+    zend_long power;
 
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zl", &tmp, &power) == FAILURE) {
         /* error message was sent by zend_parse_parameters() */
