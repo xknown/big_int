@@ -271,7 +271,7 @@ static void un_op(const char *func_name, un_op_func func, int err_cnt,
 
     free_args(args, 1);
     /* register [answer] as resource */
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     /* do not free [answer], because it is already registered as resource */
     return;
@@ -375,7 +375,7 @@ static void bin_op(const char *func_name, bin_op_func func, int err_cnt,
 
     free_args(args, 2);
     /* register [answer] as resource */
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     /* do not free [answer], because it is already registered as resource */
     return;
@@ -423,7 +423,7 @@ static void bin_op1(const char *func_name, bin_op1_func func, INTERNAL_FUNCTION_
         }
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     free_args(&arg, 1);
     /* do not free answer, because it is registered as resource */
@@ -499,7 +499,7 @@ static void tri_op(const char *func_name, tri_op_func func, int err_cnt,
 
     free_args(args, 3);
     /* register [answer] as resource */
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     /* do not free [answer], because it is already registered as resource */
     return;
@@ -554,7 +554,7 @@ static void tri_op1(const char *func_name, tri_op1_func func, INTERNAL_FUNCTION_
         goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     free_args(args, 2);
     /* do not free answer, because it is registered as resource */
@@ -613,7 +613,7 @@ static void do_shift(const char *func_name, shift_direction dir, INTERNAL_FUNCTI
         goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     free_args(&arg, 1);
     /* do not free answer, because it is registered as resource */
@@ -716,7 +716,7 @@ ZEND_FUNCTION(bi_from_str)
     }
 
     /* register [num] as resource */
-    ZEND_REGISTER_RESOURCE(return_value, num, resource_type);
+    RETURN_RES(zend_register_resource(num, resource_type));
 
     /* do not free [num], because it is already registered as resource */
     return;
@@ -1355,7 +1355,7 @@ ZEND_FUNCTION(bi_rand)
         big_int_rand(rand, n_bits, answer);
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     /* do not free answer, because it is registered as resource */
     return;
@@ -1383,7 +1383,7 @@ ZEND_FUNCTION(bi_div_extended)
     int args_cnt;
     args_entry args[2] = {0};
     int is_zero;
-    zval *q_zval = NULL, *r_zval = NULL;
+    zval q_zval = NULL, r_zval = NULL;
 
     args_cnt = ZEND_NUM_ARGS();
     if (get_func_args("bi_div_extended", 2, 2, &args_cnt, args TSRMLS_CC) == FAILURE) {
@@ -1410,17 +1410,14 @@ ZEND_FUNCTION(bi_div_extended)
 
     free_args(args, args_cnt);
 
-    MAKE_STD_ZVAL(q_zval);
-    MAKE_STD_ZVAL(r_zval);
-
     /* register [q] and [r] as resources */
-    ZEND_REGISTER_RESOURCE(q_zval, q, resource_type);
-    ZEND_REGISTER_RESOURCE(r_zval, r, resource_type);
+    ZVAL_RES(&q_zval, zend_register_resource(q, resource_type));
+    ZVAL_RES(&r_zval, zend_register_resource(r, resource_type));
 
     /* create array(q, r) */
     array_init(return_value);
-    add_next_index_zval(return_value, q_zval);
-    add_next_index_zval(return_value, r_zval);
+    add_next_index_zval(return_value, &q_zval);
+    add_next_index_zval(return_value, &r_zval);
 
     /* do not free [q] and [r], because they are already registered as resources */
     return;
@@ -1741,7 +1738,7 @@ ZEND_FUNCTION(bi_subint)
         goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     free_args(&arg, 1);
     /* do not free answer, because it is already registered as resource */
@@ -1963,7 +1960,7 @@ ZEND_FUNCTION(bi_fact)
             goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
     return;
 
 error:
@@ -2008,7 +2005,7 @@ ZEND_FUNCTION(bi_pow)
         goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
 
     free_args(&arg, 1);
     /* do not free answer, because it is already registered as resource */
@@ -2119,7 +2116,7 @@ ZEND_FUNCTION(bi_unserialize)
             goto error;
     }
 
-    ZEND_REGISTER_RESOURCE(return_value, answer, resource_type);
+    RETURN_RES(zend_register_resource(answer, resource_type));
     return;
 
 error:
@@ -2147,7 +2144,7 @@ ZEND_FUNCTION(bi_gcd_extended)
     int args_cnt;
     args_entry args[2] = {0};
     big_int *gcd = NULL, *u = NULL, *v = NULL;
-    zval *gcd_zval = NULL, *u_zval = NULL, *v_zval = NULL;
+    zval gcd_zval = NULL, u_zval = NULL, v_zval = NULL;
 
     args_cnt = ZEND_NUM_ARGS();
     if (get_func_args("bi_bit_len", 2, 2, &args_cnt, args TSRMLS_CC) == FAILURE) {
@@ -2172,20 +2169,16 @@ ZEND_FUNCTION(bi_gcd_extended)
             goto error;
     }
 
-    MAKE_STD_ZVAL(gcd_zval);
-    MAKE_STD_ZVAL(u_zval);
-    MAKE_STD_ZVAL(v_zval);
-
     /* register [gcd], [u] and [v] as resources */
-    ZEND_REGISTER_RESOURCE(gcd_zval, gcd, resource_type);
-    ZEND_REGISTER_RESOURCE(u_zval, u, resource_type);
-    ZEND_REGISTER_RESOURCE(v_zval, v, resource_type);
+    ZVAL_RES(&gcd_zval, zend_register_resource(gcd, resource_type));
+    ZVAL_RES(&u_zval, zend_register_resource(u, resource_type));
+    ZVAL_RES(&v_zval, zend_register_resource(v, resource_type));
 
     /* create array(gcd, u, v) */
     array_init(return_value);
-    add_next_index_zval(return_value, gcd_zval);
-    add_next_index_zval(return_value, u_zval);
-    add_next_index_zval(return_value, v_zval);
+    add_next_index_zval(return_value, &gcd_zval);
+    add_next_index_zval(return_value, &u_zval);
+    add_next_index_zval(return_value, &v_zval);
 
     free_args(args, args_cnt);
     /* do not free gcd, u and v, because they are already registersd as resources */
