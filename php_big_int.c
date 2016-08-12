@@ -130,16 +130,17 @@ ZEND_GET_MODULE(bi)
 /* resource type for [big_int] */
 static int resource_type;
 
-static int zval_to_big_int(const char *func_name, zval **tmp, args_entry *arg, int arg_pos TSRMLS_DC)
+static int zval_to_big_int(const char *func_name, zval *tmp, args_entry *arg, int arg_pos TSRMLS_DC)
 {
     int rsrc_type, rsrc_id;
     char errbuf[200];
     big_int_str s;
 
-    if (Z_TYPE_PP(tmp) == IS_RESOURCE) {
+    if (Z_TYPE_P(tmp) == IS_RESOURCE) {
         arg->is_not_ref = 0; /* arg will not deleted in free_args() */
-        rsrc_id = Z_LVAL_PP(tmp);
-        arg->num = (big_int *) zend_list_find(rsrc_id, &rsrc_type);
+        rsrc_id = Z_RES_P(tmp)->handle;
+        rsrc_type = Z_RES_P(tmp)->type;
+        arg->num = (big_int *) Z_RES_P(tmp)->ptr;
         if (arg->num == NULL) {
             snprintf(errbuf, 200, BI_INTERNAL_ERROR);
             goto error;
@@ -157,12 +158,18 @@ static int zval_to_big_int(const char *func_name, zval **tmp, args_entry *arg, i
             snprintf(errbuf, 200, BI_INTERNAL_ERROR);
             goto error;
         }
-        if (Z_TYPE_PP(tmp) != IS_STRING) {
+        if (Z_TYPE_P(tmp) != IS_STRING) {
             SEPARATE_ZVAL(tmp);
-            convert_to_string(*tmp);
+            zend_string *str;
+            str = zval_get_string(tmp);
+            s.str = ZSTR_VAL(str);
+            s.len = ZSTR_LEN(str);
+            zend_string_release(str);
+        } else {
+            s.str = Z_STRVAL_P(tmp);
+            s.len = Z_STRLEN_P(tmp);
         }
-        s.str = Z_STRVAL_PP(tmp);
-        s.len = Z_STRLEN_PP(tmp);
+
         switch (big_int_from_str(&s, 10, arg->num)) {
         case 0 : break; /* all ok */
         case 2 :
@@ -190,7 +197,7 @@ error:
 static int get_func_args(const char *func_name, int args_cnt_min, int args_cnt_max,
     int *args_cnt, args_entry *nums TSRMLS_DC)
 {
-    zval **args[BI_MAX_FUNC_ARGS_CNT];
+    zval args[BI_MAX_FUNC_ARGS_CNT];
     int i = 0;
     char errbuf[200];
 
@@ -213,7 +220,7 @@ static int get_func_args(const char *func_name, int args_cnt_min, int args_cnt_m
         goto error;
     }
     for (i = 0; i < *args_cnt; i++) {
-        if (zval_to_big_int(func_name, args[i], &nums[i], i TSRMLS_CC) == FAILURE) {
+        if (zval_to_big_int(func_name, &args[i], &nums[i], i TSRMLS_CC) == FAILURE) {
             /* error message is already sent by zval_to_big_int() */
             goto error;
         }
@@ -411,7 +418,7 @@ static void bin_op1(const char *func_name, bin_op1_func func, INTERNAL_FUNCTION_
         goto error;
     }
 
-    if (zval_to_big_int(func_name, &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int(func_name, tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -540,11 +547,11 @@ static void tri_op1(const char *func_name, tri_op1_func func, INTERNAL_FUNCTION_
         goto error;
     }
 
-    if (zval_to_big_int(func_name, &tmp[0], &args[0], 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int(func_name, tmp[0], &args[0], 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
-    if (zval_to_big_int(func_name, &tmp[1], &args[1], 1 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int(func_name, tmp[1], &args[1], 1 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -589,7 +596,7 @@ static void do_shift(const char *func_name, shift_direction dir, INTERNAL_FUNCTI
         goto error;
     }
 
-    if (zval_to_big_int(func_name, &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int(func_name, tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -630,7 +637,7 @@ error:
 
 /*******************************************************************/
 
-static void bi_destruction_handler(zend_rsrc_list_entry *rsrc TSRMLS_DC)
+static void bi_destruction_handler(zend_resource *rsrc TSRMLS_DC)
 {
     /* free allocated memory */
     big_int_destroy((big_int *) rsrc->ptr);
@@ -760,7 +767,7 @@ ZEND_FUNCTION(bi_to_str)
         goto error;
     }
 
-    if (zval_to_big_int("bi_to_str", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_to_str", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -1312,8 +1319,6 @@ ZEND_FUNCTION(bi_rand)
             goto error;
         }
 
-	array_init(&retval1);
-
 	n_words = (n_bits / BIG_INT_WORD_BITS_CNT) + 1;
         n_bits %= BIG_INT_WORD_BITS_CNT;
         /* allocate memory for [answer] */
@@ -1541,7 +1546,7 @@ ZEND_FUNCTION(bi_test_bit)
         goto error;
     }
 
-    if (zval_to_big_int("bi_test_bit", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_test_bit", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -1584,7 +1589,7 @@ ZEND_FUNCTION(bi_scan0_bit)
         goto error;
     }
 
-    if (zval_to_big_int("bi_scan0_bit", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_scan0_bit", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -1627,7 +1632,7 @@ ZEND_FUNCTION(bi_scan1_bit)
         goto error;
     }
 
-    if (zval_to_big_int("bi_scan1_bit", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_scan1_bit", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -1728,7 +1733,7 @@ ZEND_FUNCTION(bi_subint)
         goto error;
     }
 
-    if (zval_to_big_int("bi_subint", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_subint", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -1989,7 +1994,7 @@ ZEND_FUNCTION(bi_pow)
         goto error;
     }
 
-    if (zval_to_big_int("bi_pow", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_pow", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -2041,7 +2046,7 @@ ZEND_FUNCTION(bi_serialize)
         goto error;
     }
 
-    if (zval_to_big_int("bi_serialize", &tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
+    if (zval_to_big_int("bi_serialize", tmp, &arg, 0 TSRMLS_CC) == FAILURE) {
         /* error message is already sent by zval_to_big_int() */
         goto error;
     }
@@ -2084,7 +2089,7 @@ ZEND_FUNCTION(bi_unserialize)
     const char *errstr = NULL;
     big_int *answer = NULL;
     char *str;
-    int str_len;
+    size_t str_len;
 	zend_bool is_sign;
     big_int_str s;
 
