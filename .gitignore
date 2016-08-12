@@ -1,5 +1,9 @@
 *~
+*.lo
+*.la
 .deps
+.libs/
+modules/
 Makefile
 Makefile.fragments
 Makefile.objects
