@@ -82,10 +82,10 @@ static const double log2_inv_table[] = {
 #define LEN_OVERFLOW_CHECK(ret_arg) if ((~(size_t)0) / BIG_INT_WORD_BYTES_CNT < len) { return (ret_arg); }
 
 /* returns version of big_int library */
-const char * big_int_version() { return BIG_INT_VERSION; }
+char * big_int_version() { return BIG_INT_VERSION; }
 
 /* returns build date of big_int library */
-const char * big_int_build_date() { return BIG_INT_BUILD_DATE; }
+char * big_int_build_date() { return BIG_INT_BUILD_DATE; }
 
 /*
     Creates a new big_int number with [len] preallocated digits.

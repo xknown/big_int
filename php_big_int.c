@@ -603,11 +603,11 @@ static void do_shift(const char *func_name, shift_direction dir, INTERNAL_FUNCTI
 
     switch (dir) {
         case RIGHT:
-            func = big_int_rshift;
+            func = (bin_op1_func) big_int_rshift;
             break;
 
         case LEFT:
-            func = big_int_lshift;
+            func = (bin_op1_func) big_int_lshift;
             break;
 
         default:

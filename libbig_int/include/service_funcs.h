@@ -27,9 +27,9 @@
 extern "C" {
 #endif
 
-BIG_INT_API const char * big_int_version();
+BIG_INT_API char * big_int_version();
 
-BIG_INT_API const char * big_int_build_date();
+BIG_INT_API char * big_int_build_date();
 
 BIG_INT_API big_int * big_int_create(size_t len);
 
